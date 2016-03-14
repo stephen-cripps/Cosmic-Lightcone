@@ -1,7 +1,9 @@
 # Cosmic-Lightcone
 
 **Names(ID): Hognbo Tian(4180900) & Stephen Cripps(4184175)**
+
 **Project Title: Cosmic Lightcone **
+
 **Project Supervisor: Prof. Frazer Pearce **
 
 ##Project Description: 
