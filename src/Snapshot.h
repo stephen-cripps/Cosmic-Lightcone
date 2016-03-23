@@ -12,11 +12,21 @@
 #include <vector>		// Vector Containers
 #include <fstream>		// Reading and writing files
 #include <stdlib.h>		// atof - convert string to doubles
-#include "Galaxy.h"		// Galaxies
+#include <math.h>		// sin and cos
 #include "Timer.h"		// Timer
-#include "MultiDimData.h"	// 3D data structure
 
 using namespace std;
+
+struct Particle {
+	double mX, mY, mZ;
+	int mID;
+	// Spherical polar, don't need phi
+	double mR, mTheta;
+
+	Particle(double mx, double my, double mz, int id) :
+			mX(mx), mY(my), mZ(mz), mID(id), mR(0), mTheta(0) {
+	}
+};
 
 class Snapshot {
 public:
@@ -24,36 +34,17 @@ public:
 	Snapshot(string path);
 
 	void setPath(string path);
-	void setGalaxies(vector<Galaxy> galaxies);
-	bool loadPos();	// Load only position data
-	bool loadPosMt();	// Load position and total mass only
-	bool loadFull();
-	bool checkIntegrity();
-	MultiDimData getNumGrid(int gridSize);
-	MultiDimData getMassGrid(int gridSize);
-	MultiDimData getOverDensity(int gridSize);
+	bool load();
 
-	vector<Galaxy> getCandidate();
-	vector<Galaxy> getHeavy();
-	vector<Galaxy> getPoint(double x, double y, double z, double radius);
+	void align(double theta, double phi);
 
-	bool writePos(vector<Galaxy> galaxies, string path);
-
-	const static unsigned int PARAMETERS_POS = 3;
-	const static unsigned int PARAMETERS_POSMT = 4;
-	const static unsigned int PARAMETERS_TOTAL = 8;
-	const static unsigned int BOX_SIZE = 500; //Mpc
-	const static unsigned int INTEGRITY_GRID_SIZE = 50; //Mpc
-	const static unsigned int MAX_RESERVE = 18000000; // reverse memory for 20 million points
+	const static unsigned int PARTICLE_PARAMETERS_TOTAL = 4;
+	const static unsigned int MAX_RESERVE = 10000000; // reverse memory for 10 million points
 
 	string mPath;
-	vector<Galaxy> mGalaxies;
+	vector<Particle> mParticles;
 	int getSize();
 
-	virtual ~Snapshot();
-
-	// Temp
-	void candidateCount();
 };
 
 #endif /* SNAPSHOT_H_ */
