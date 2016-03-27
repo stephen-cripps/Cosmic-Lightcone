@@ -13,7 +13,7 @@ g_x = rand(1, size).*2.*range - range;
 g_y = rand(1, size).*2.*range - range;
 g_z = rand(1, size).*2.*range - range;
 
-
+% define observer
 o_x = rand*2*range - range;
 o_y = rand*2*range - range;
 o_z = rand*2*range - range;

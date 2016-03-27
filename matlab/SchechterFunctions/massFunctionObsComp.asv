@@ -1,0 +1,24 @@
+clc
+close
+
+%Reading in and plotting z=0 data
+%  snap0= csvread('tao.1409.0.csv',1,0);
+   M0=snap0(:,1);
+   M0=M0(M0~=0);
+   M0=M0(M0>median(M0));
+   M0=M0*10^10;
+   M0=log10(M0);
+ 
+   h=0.73;
+ Vol=(500*h)^3;
+   
+ [c0,M]=hist(M0,100);
+ cl0=log10(c0);
+ cl0(cl0==-inf)=0;
+% cl0=cl0/sum(cl0);
+plot(M,(cl0)-,'--')
+hold on 
+%Plotting Observational Data
+obs0=csvread('SMF_Z_0.csv',1,0);
+
+errorbar(obs0(:,1),obs0(:,2),obs0(:,3))
