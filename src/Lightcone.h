@@ -13,6 +13,7 @@
 #include <fstream>		// Reading and writting files
 #include <vector>		// vectors
 #include <algorithm>	// Sort
+#include <sstream>		// String stream
 #include "Snapshot.h"
 
 struct Observer {
@@ -44,18 +45,36 @@ struct LightconeSettings {
 	}
 };
 
+// -------------- Lightcone Class---------
+
 class Lightcone {
 public:
 	Lightcone();
-	void set(LightconeSettings settings);
+	void setLightcone(LightconeSettings settings);
+	void setObserver(Particle obs);
 	void setLabel(string str);
 	bool loadRedshiftSteps();
+	void generate();
 	vector<Particle> getSegment(Snapshot& snap, double rMax, double rMin);
+	void write();
+
+public:
+	static const int BOX_WIDTH = 500;
+	static const int STARTING_TAO_NUM = 1409;
 
 private:
 	string mLabel;
 	double mR, mTheta, mPhi, mOpening;
+	Particle mObserver;
 	vector<double> mRedshiftSteps;
+	vector<Particle> mParticles;
+
+private:
+	int calcOffset(double);
+	bool collide(Box a, Box b);
+	void reverseRotation(vector<Particle>& par);
+	Box makeBoxFromParticles(vector<Particle>& par);
+	void shiftPointsByObserver(vector<Particle>& par);
 
 };
 

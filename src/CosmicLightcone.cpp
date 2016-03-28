@@ -15,14 +15,14 @@
 
 using namespace std;
 
-void spacer();
+void printSpacer();
 string getStringFromUser(string str);
 double getDoubleFromUser(string str, double max, double min);
 LightconeSettings getLightconeSettingsFromUser();
 
 bool init();
 
-const static string VERSION_NUMBER = "0.0.0";
+const static string VERSION_NUMBER = "0.1.0";
 const static string PROGRAM_NAME = "Cosmic Lightcone";
 
 int main() {
@@ -31,23 +31,33 @@ int main() {
 	Lightcone cone;
 	cone.loadRedshiftSteps();
 	// TO DO: menu stuff here
+	cone.setObserver(Particle(200, 200, 200));
+	//LightconeSettings ls = getLightconeSettingsFromUser();
+	LightconeSettings ls;
+	ls.mR = 100;
+	ls.mTheta = 0;
+	ls.mPhi = 0;
+	ls.mOpening = 0.5;
+	cone.setLightcone(ls);
+	cone.generate();
+	cone.write();
 
 	return 0;
 }
 
 bool init() {
 	bool success = true;
-	spacer();
+	printSpacer();
 	cout << PROGRAM_NAME << " (Version " << VERSION_NUMBER << ")" << endl;
 	cout << "By Hongbo Tian & Stephen Cripps @ The University of Nottingham "
 			<< endl;
-	spacer();
+	printSpacer();
 	return success;
 }
 
 // -------------- Getters and Misc --------------------
 
-void spacer() {
+void printSpacer() {
 	cout << "  - - - - - - - - - - - - - - - - - - - " << endl;
 }
 
