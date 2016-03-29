@@ -12,7 +12,7 @@ Snapshot::Snapshot() {
 }
 
 Snapshot::Snapshot(string path) :
-		mPath(path) {
+	mPath(path) {
 }
 
 bool Snapshot::load() {
@@ -44,8 +44,7 @@ bool Snapshot::load() {
 			getline(snapshotFile, element, ',');
 
 			// Read the next three position parameters
-			for (unsigned int index = 0; index < PARTICLE_PARAMETERS_TOTAL - 1;
-					index++) {
+			for (unsigned int index = 0; index < PARTICLE_PARAMETERS_TOTAL - 1; index++) {
 				getline(snapshotFile, element, ',');
 				values[index] = atof(element.c_str());
 			}
@@ -80,14 +79,18 @@ bool Snapshot::load() {
 vector<Particle> Snapshot::getCone(double rMax, double rMin, double theta,
 		double phi, double opening, Particle obs, int xOffset, int yOffset,
 		int zOffset) {
-	printf("rMin: %f, rMax, %f, opening: %f\n", rMin, rMax, opening);
 	vector<Particle> particles;
-	for (vector<Particle>::iterator it = mParticles.begin();
-			it != mParticles.end(); it++) {
+	for (vector<Particle>::iterator it = mParticles.begin(); it
+			!= mParticles.end(); it++) {
+		// Shift the box by offset
+		it->x = it->x + BOX_WIDTH * xOffset;
+		it->y = it->y + BOX_WIDTH * yOffset;
+		it->z = it->z + BOX_WIDTH * zOffset;
+
 		// Position correction where observer is at the origin
-		double gX = it->x + BOX_WIDTH * xOffset - obs.x;
-		double gY = it->y + BOX_WIDTH * yOffset - obs.y;
-		double gZ = it->z + BOX_WIDTH * zOffset - obs.z;
+		double gX = it->x - obs.x;
+		double gY = it->y - obs.y;
+		double gZ = it->z - obs.z;
 		// First rotation around z axis, clockwise by phi
 		gX = gX * cos(-phi) - gY * sin(-phi);
 		gY = gX * sin(-phi) + gY * cos(-phi);
@@ -98,11 +101,8 @@ vector<Particle> Snapshot::getCone(double rMax, double rMin, double theta,
 		double gR = sqrt(pow(gX, 2) + pow(gY, 2) + pow(gZ, 2));
 		double gTheta = acos(gZ / gR);
 
-		//printf("gR: %f, gTheta:%f\n", gR, gTheta);
-
 		if (gR > rMin && gR <= rMax && gTheta <= opening) {
 			particles.push_back(*it);
-			//printf("Incone!!!\n");
 		}
 	}
 	return particles;

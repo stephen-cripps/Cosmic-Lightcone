@@ -76,6 +76,9 @@ private:
 	Box makeBoxFromParticles(vector<Particle>& par);
 	void shiftPointsByObserver(vector<Particle>& par);
 
+	// Debug
+	void dumpParticles(vector<Particle>& par);
+
 };
 
 #endif /* LIGHTCONE_H_ */

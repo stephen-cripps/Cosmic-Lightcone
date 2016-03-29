@@ -26,7 +26,8 @@ void Lightcone::setLabel(string str) {
 
 bool Lightcone::loadRedshiftSteps() {
 	bool success = true;
-	string redshiftFilePath = "/media/eva/Elements/Snapshot/redshiftStep";
+	string redshiftFilePath =
+			"C:\\Users\\user\\Documents\\Lightcones\\redshiftStep.txt";
 	ifstream redShiftFile(redshiftFilePath.c_str());
 	if (redShiftFile.is_open()) {
 		// Cleaning current redshiftsteps
@@ -53,31 +54,35 @@ void Lightcone::generate() {
 	mParticles.clear();
 	int fileIndex = 0;
 	double rMin = 0;
-	for (vector<double>::iterator it = mRedshiftSteps.begin();
-			it != mRedshiftSteps.end(); it++, fileIndex++) {
-		double r = *it * (1 + *it) * 4109.6;
-		if (r < mR) {
+	double rMax = 0;
+	for (vector<double>::iterator it = mRedshiftSteps.begin(); it
+			!= mRedshiftSteps.end(); it++, fileIndex++) {
+		rMax = *(it + 1) * (1 + *(it + 1)) * 4109.6;
+		if (rMin < mR) {
+			if (rMax > mR) {
+				rMax = mR;
+			}
 			stringstream ss;
-			ss << "/media/eva/Elements/Snapshot/" << "tao.";
+			ss << "C:\\Users\\user\\Documents\\Lightcones\\" << "tao.";
 			ss << STARTING_TAO_NUM + fileIndex;
 			ss << ".0.csv";
-			printf("Loading %d, for z= %f, r = %f\n",
-					STARTING_TAO_NUM + fileIndex, *it, r);
+			printf("Loading %d, for z= %f\n", STARTING_TAO_NUM + fileIndex, *it);
 			// Load the snapshot according to redshift
 			Snapshot snap(ss.str());
 			snap.load();
-			vector<Particle> segment = getSegment(snap, mR, rMin);
+			vector<Particle> segment = getSegment(snap, rMax, rMin);
 			// merge
 			mParticles.insert(mParticles.end(), segment.begin(), segment.end());
-			rMin = *it;
+			rMin = rMax;
 		} else {
 			break;
 		}
 	}
 }
 
-vector<Particle> Lightcone::getSegment(Snapshot& snap, double rMax,
-		double rMin) {
+vector<Particle> Lightcone::getSegment(Snapshot& snap, double rMax, double rMin) {
+	printf("Generating segment (rMax, rMin) (%.0f, %.0f) \n", rMax, rMin);
+
 	// Check for range correction
 	// The lightcone of the middle(origin) observer must not be empty
 	// start of the cone must be inside the box
@@ -88,11 +93,14 @@ vector<Particle> Lightcone::getSegment(Snapshot& snap, double rMax,
 	yOffset = calcOffset(rMin * sin(mTheta) * cos(mPhi));
 	zOffset = calcOffset(rMin * cos(mTheta));
 
+	printf("Offsets (x:y:z) %d:%d:%d\n", xOffset, yOffset, zOffset);
+
 	// Define the 8 points that enclose the lightcone in rotated reference frame
 	vector<Particle> points;
-	double d = rMax * tan(mTheta);
-	double dp = rMin * sin(mTheta);
-	double rp = rMin * cos(mTheta);
+	double d = rMax * tan(mOpening);
+	double dp = rMin * sin(mOpening);
+	double rp = rMin * cos(mOpening);
+	printf("d:d':r' (%.0f:%.0f:%.0f)\n", d, dp, rp);
 	points.push_back(Particle(-d, -d, rMax));
 	points.push_back(Particle(-d, d, rMax));
 	points.push_back(Particle(d, -d, rMax));
@@ -103,9 +111,17 @@ vector<Particle> Lightcone::getSegment(Snapshot& snap, double rMax,
 	points.push_back(Particle(dp, dp, rp));
 	reverseRotation(points);
 	shiftPointsByObserver(points);
+
 	Box obsBox = makeBoxFromParticles(points);
+	printf(
+			"Original Observer box at [%.2f, %.2f, %.2f] with size [%.2f, %.2f, %.2f].\n",
+			obsBox.x, obsBox.y, obsBox.z, obsBox.w, obsBox.h, obsBox.d);
 	Box snapshotBox = Box(BOX_WIDTH * xOffset, BOX_WIDTH * yOffset,
 			BOX_WIDTH * zOffset, BOX_WIDTH);
+	printf(
+			"Snapshot box at [%.2f, %.2f, %.2f] with size [%.2f, %.2f, %.2f].\n",
+			snapshotBox.x, snapshotBox.y, snapshotBox.z, snapshotBox.w,
+			snapshotBox.h, snapshotBox.d);
 
 	vector<Particle> inConeTotal;
 	// here i, j and k are the observer offsets
@@ -118,16 +134,30 @@ vector<Particle> Lightcone::getSegment(Snapshot& snap, double rMax,
 				virtualObsBox.y = virtualObsBox.y + j * BOX_WIDTH;
 				virtualObsBox.z = virtualObsBox.z + k * BOX_WIDTH;
 				if (collide(snapshotBox, virtualObsBox)) {
-					printf("Collision detected\n");
+					// Create a virtual observer
+					Particle virtualObs = mObserver;
+					// Make corrections
+					virtualObs.x = virtualObs.x + i * BOX_WIDTH;
+					virtualObs.y = virtualObs.y + j * BOX_WIDTH;
+					virtualObs.z = virtualObs.z + k * BOX_WIDTH;
+					printf("Observer at (%.0f, %.0f, %.0f) has box at ",
+							virtualObs.x, virtualObs.y, virtualObs.z);
+
+					// Output the Virtual Observer Box
+					printf(
+							"(%.2f, %.2f, %.2f) with size (%.2f, %.2f, %.2f) collids with the snapshot.\n",
+							virtualObsBox.x, virtualObsBox.y, virtualObsBox.z,
+							virtualObsBox.w, virtualObsBox.h, virtualObsBox.d);
+
 					// Check lightcone
 					vector<Particle> inCone = snap.getCone(rMax, rMin, mTheta,
-							mPhi, mOpening, mObserver, xOffset, yOffset,
+							mPhi, mOpening, virtualObs, xOffset, yOffset,
 							zOffset);
 
-					printf("InconeSize: %lu\n", inCone.size());
+					printf("InconeSize: %u\n", inCone.size());
 					// Make corrections
-					for (vector<Particle>::iterator it = inCone.begin();
-							it != inCone.end(); it++) {
+					for (vector<Particle>::iterator it = inCone.begin(); it
+							!= inCone.end(); it++) {
 						it->x = it->x - i * BOX_WIDTH;
 						it->y = it->y - j * BOX_WIDTH;
 						it->z = it->z - k * BOX_WIDTH;
@@ -139,20 +169,20 @@ vector<Particle> Lightcone::getSegment(Snapshot& snap, double rMax,
 			}
 		}
 	}
-	printf("Segment Size: %lu\n", inConeTotal.size());
+	printf("Segment Size: %u\n", inConeTotal.size());
 	return inConeTotal;
 }
 
 void Lightcone::write() {
 	stringstream ss;
-	ss << "/media/eva/Elements/Lightcone/";
+	ss << "C:\\Users\\user\\Documents\\Lightcones\\generated\\";
 	ss << mR << "." << mTheta << "." << mPhi << "." << mOpening << "." << "csv";
 
 	ofstream file(ss.str().c_str());
 	if (file.is_open()) {
 		file << "x, y, z, id\n";
-		for (vector<Particle>::iterator it = mParticles.begin();
-				it != mParticles.end(); it++) {
+		for (vector<Particle>::iterator it = mParticles.begin(); it
+				!= mParticles.end(); it++) {
 			file << it->x << ", " << it->y << ", " << it->z << ", " << it->id
 					<< "\n";
 		}
@@ -179,7 +209,7 @@ bool Lightcone::collide(Box a, Box b) {
 	if (a.x + a.w < b.x || b.x + b.w < a.x) {
 		return false;
 	}
-	if (a.y + a.h < b.y || b.y + b.h < b.y) {
+	if (a.y + a.h < b.y || b.y + b.h < a.y) {
 		return false;
 	}
 	if (a.z + a.d < b.z || b.z + b.d < a.z) {
@@ -214,7 +244,7 @@ Box Lightcone::makeBoxFromParticles(vector<Particle>& par) {
 	box.z = *min_element(z.begin(), z.end());
 	box.w = *max_element(x.begin(), x.end()) - box.x;
 	box.h = *max_element(y.begin(), y.end()) - box.y;
-	box.z = *max_element(z.begin(), z.end()) - box.z;
+	box.d = *max_element(z.begin(), z.end()) - box.z;
 	return box;
 }
 
@@ -224,4 +254,14 @@ void Lightcone::shiftPointsByObserver(vector<Particle>& par) {
 		it->y = it->y + mObserver.y;
 		it->z = it->z + mObserver.z;
 	}
+}
+
+// Debug
+
+void Lightcone::dumpParticles(vector<Particle>& par) {
+	int id = 0;
+	for (vector<Particle>::iterator it = par.begin(); it != par.end(); it++, id++) {
+		printf("id: %d (%.0f:%.0f:%.0f)\n", id, it->x, it->y, it->z);
+	}
+
 }

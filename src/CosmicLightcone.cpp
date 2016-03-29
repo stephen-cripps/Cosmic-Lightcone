@@ -10,6 +10,7 @@
 #include <stdlib.h>		// atof
 #include <ctype.h>		// isdigit
 #include <stdio.h>
+#include <math.h>
 #include "Lightcone.h"
 #include "Snapshot.h"
 
@@ -22,7 +23,7 @@ LightconeSettings getLightconeSettingsFromUser();
 
 bool init();
 
-const static string VERSION_NUMBER = "0.1.0";
+const static string VERSION_NUMBER = "0.2.0";
 const static string PROGRAM_NAME = "Cosmic Lightcone";
 
 int main() {
@@ -31,13 +32,13 @@ int main() {
 	Lightcone cone;
 	cone.loadRedshiftSteps();
 	// TO DO: menu stuff here
-	cone.setObserver(Particle(200, 200, 200));
+	cone.setObserver(Particle(0, 0, 0));
 	//LightconeSettings ls = getLightconeSettingsFromUser();
 	LightconeSettings ls;
-	ls.mR = 100;
+	ls.mR = 1000;
 	ls.mTheta = 0;
 	ls.mPhi = 0;
-	ls.mOpening = 0.5;
+	ls.mOpening = 0.05;
 	cone.setLightcone(ls);
 	cone.generate();
 	cone.write();
