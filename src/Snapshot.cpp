@@ -77,19 +77,35 @@ bool Snapshot::load() {
 	return success;
 }
 
-void Snapshot::align(double theta, double phi) {
+vector<Particle> Snapshot::getCone(double rMax, double rMin, double theta,
+		double phi, double opening, Particle obs, int xOffset, int yOffset,
+		int zOffset) {
+	printf("rMin: %f, rMax, %f, opening: %f\n", rMin, rMax, opening);
+	vector<Particle> particles;
 	for (vector<Particle>::iterator it = mParticles.begin();
 			it != mParticles.end(); it++) {
+		// Position correction where observer is at the origin
+		double gX = it->x + BOX_WIDTH * xOffset - obs.x;
+		double gY = it->y + BOX_WIDTH * yOffset - obs.y;
+		double gZ = it->z + BOX_WIDTH * zOffset - obs.z;
 		// First rotation around z axis, clockwise by phi
-		it->mX = it->mX * cos(-phi) - it->mY * sin(-phi);
-		it->mY = it->mX * sin(-phi) + it->mY * cos(-phi);
+		gX = gX * cos(-phi) - gY * sin(-phi);
+		gY = gX * sin(-phi) + gY * cos(-phi);
 		// Then rotation around y axis, clockwise by theta
-		it->mX = it->mX * cos(-theta) + it->mZ * sin(-theta);
-		it->mZ = -it->mX * sin(-theta) + it->mZ * cos(-theta);
+		gX = gX * cos(-theta) + gZ * sin(-theta);
+		gZ = -gX * sin(-theta) + gZ * cos(-theta);
 		// Calculating Spherical Polar
-		it->mR = sqrt(pow(it->mX, 2) + pow(it->mY, 2) + pow(it->mZ, 2));
-		it->mTheta = acos(it->mZ / it->mR);
+		double gR = sqrt(pow(gX, 2) + pow(gY, 2) + pow(gZ, 2));
+		double gTheta = acos(gZ / gR);
+
+		//printf("gR: %f, gTheta:%f\n", gR, gTheta);
+
+		if (gR > rMin && gR <= rMax && gTheta <= opening) {
+			particles.push_back(*it);
+			//printf("Incone!!!\n");
+		}
 	}
+	return particles;
 }
 
 int Snapshot::getSize() {
