@@ -16,8 +16,6 @@
 #include <sstream>		// String stream
 #include "Snapshot.h"
 
-#include <iomanip>		// setpr
-
 struct Observer {
 	// Carry one here
 };
