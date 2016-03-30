@@ -23,7 +23,7 @@ LightconeSettings getLightconeSettingsFromUser();
 
 bool init();
 
-const static string VERSION_NUMBER = "0.3.0";
+const static string VERSION_NUMBER = "0.2.0";
 const static string PROGRAM_NAME = "Cosmic Lightcone";
 
 int main() {
@@ -35,13 +35,13 @@ int main() {
 	Lightcone cone;
 	cone.loadRedshiftSteps();
 	// TO DO: menu stuff here
-	cone.setObserver(Particle(1, 1, 1));
+	cone.setObserver(Particle(0, 0, 0));
 	//LightconeSettings ls = getLightconeSettingsFromUser();
 	LightconeSettings ls;
-	ls.mR = 1000;
-	ls.mTheta =M_PI/2;
+	ls.mR = 1800;
+	ls.mTheta = 0;
 	ls.mPhi = 0;
-	ls.mOpening = 0.5*M_PI;
+	ls.mOpening = M_PI/4;
 	cone.setLightcone(ls);
 	cone.generate();
 	cone.write();

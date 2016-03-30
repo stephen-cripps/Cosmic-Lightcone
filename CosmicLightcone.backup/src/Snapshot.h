@@ -14,33 +14,34 @@
 #include <stdlib.h>		// atof - convert string to doubles
 #include <math.h>		// sin and cos
 #include "Timer.h"		// Timer
+
 using namespace std;
 
 struct Particle {
 	double x, y, z;
 	int id;
 	Particle() :
-		x(0), y(0), z(0), id(0) {
+			x(0), y(0), z(0), id(0) {
 
 	}
 	Particle(double x, double y, double z) :
-		x(x), y(y), z(z), id(0) {
+			x(x), y(y), z(z), id(0) {
 	}
 	Particle(double x, double y, double z, int id) :
-		x(x), y(y), z(z), id(id) {
+			x(x), y(y), z(z), id(id) {
 	}
 };
 
 struct Box {
 	double x, y, z, w, h, d;
 	Box() :
-		x(0), y(0), z(0), w(0), h(0), d(0) {
+			x(0), y(0), z(0), w(0), h(0), d(0) {
 	}
 	Box(double x, double y, double z, double w) :
-		x(x), y(y), z(z), w(w), h(w), d(w) {
+			x(x), y(y), z(z), w(w), h(w), d(w) {
 	}
 	Box(double x, double y, double z, double w, double h, double d) :
-		x(x), y(y), z(z), w(w), h(h), d(d) {
+			x(x), y(y), z(z), w(w), h(h), d(d) {
 	}
 
 };
@@ -53,8 +54,9 @@ public:
 	void setPath(string path);
 	bool load();
 
-	vector<Particle> getCone(double rMax, double rMin, double theta,
-			double phi, double opening, Particle obs, vector<Particle> offsets); // offsets are in units of the box width
+	vector<Particle> getCone(double rMax, double rMin, double theta, double phi,
+			double opening, Particle obs, int xOffset, int yOffset,
+			int zOffset); // offsets are in units of the box width
 
 	const static unsigned int PARTICLE_PARAMETERS_TOTAL = 4;
 	const static unsigned int MAX_RESERVE = 10000000; // reverse memory for 10 million points

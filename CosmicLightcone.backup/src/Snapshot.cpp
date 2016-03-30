@@ -77,36 +77,32 @@ bool Snapshot::load() {
 }
 
 vector<Particle> Snapshot::getCone(double rMax, double rMin, double theta,
-		double phi, double opening, Particle obs, vector<Particle> offsets) {
+		double phi, double opening, Particle obs, int xOffset, int yOffset,
+		int zOffset) {
 	vector<Particle> particles;
 	for (vector<Particle>::iterator it = mParticles.begin(); it
 			!= mParticles.end(); it++) {
-		for (vector<Particle>::iterator pit = offsets.begin(); pit
-				!= offsets.end(); pit++) {
-			// Shift the box by offset
-			double x = it->x + BOX_WIDTH * pit->x;
-			double y = it->y + BOX_WIDTH * pit->y;
-			double z = it->z + BOX_WIDTH * pit->z;
+		// Shift the box by offset
+		it->x = it->x + BOX_WIDTH * xOffset;
+		it->y = it->y + BOX_WIDTH * yOffset;
+		it->z = it->z + BOX_WIDTH * zOffset;
 
-			// Position correction where observer is at the origin
-			double tempX = x - obs.x;
-			double tempY = y - obs.y;
-			double tempZ = z - obs.z;
-			// First rotation around z axis, clockwise by phi
-			double tempX2 = tempX * cos(-phi) - tempY * sin(-phi);
-			double tempY2 = tempX * sin(-phi) + tempY * cos(-phi);
-			double tempZ2 = tempZ;
-			// Then rotation around y axis, clockwise by theta
-			double tempX3 = tempX2 * cos(-theta) + tempZ2 * sin(-theta);
-			double tempY3 = tempY2;
-			double tempZ3 = -tempX2 * sin(-theta) + tempZ2 * cos(-theta);
-			// Calculating Spherical Polar
-			double gR = sqrt(pow(tempX3, 2) + pow(tempY3, 2) + pow(tempZ3, 2));
-			double gTheta = acos(tempZ3 / gR);
+		// Position correction where observer is at the origin
+		double gX = it->x - obs.x;
+		double gY = it->y - obs.y;
+		double gZ = it->z - obs.z;
+		// First rotation around z axis, clockwise by phi
+		gX = gX * cos(-phi) - gY * sin(-phi);
+		gY = gX * sin(-phi) + gY * cos(-phi);
+		// Then rotation around y axis, clockwise by theta
+		gX = gX * cos(-theta) + gZ * sin(-theta);
+		gZ = -gX * sin(-theta) + gZ * cos(-theta);
+		// Calculating Spherical Polar
+		double gR = sqrt(pow(gX, 2) + pow(gY, 2) + pow(gZ, 2));
+		double gTheta = acos(gZ / gR);
 
-			if (gR > rMin && gR <= rMax && gTheta <= opening) {
-				particles.push_back(Particle(x, y, z, it->id));
-			}
+		if (gR > rMin && gR <= rMax && gTheta <= opening) {
+			particles.push_back(*it);
 		}
 	}
 	return particles;
