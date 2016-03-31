@@ -7,12 +7,12 @@
 
 #include "Snapshot.h"
 
-Snapshot::Snapshot() {
-	// TODO Auto-generated constructor stub
+Snapshot::Snapshot() :
+	mTAOid(0) {
 }
 
-Snapshot::Snapshot(string path) :
-	mPath(path) {
+Snapshot::Snapshot(int id) :
+	mTAOid(id) {
 }
 
 bool Snapshot::load() {
@@ -20,18 +20,26 @@ bool Snapshot::load() {
 	mParticles.reserve(MAX_RESERVE);
 	// Reserve memory
 
+	// Set Timer
 	bool success = true;
 	Timer loadingTimer;
 	loadingTimer.start();
 
+	// Format file path
+	stringstream ss;
+	ss << DIRECTORY_PATH;
+	ss << "tao." << mTAOid << "." << "0.csv";
+
 	// Open Snapshot file
-	ifstream snapshotFile(mPath.c_str());
+	ifstream snapshotFile(ss.str().c_str());
 	double lastTick = 0;
 
+	int particleID = 0;
 	// Read file
 	if (snapshotFile.is_open()) {
-		printf("Loading snapshot %s.\n", mPath.c_str());
+		printf("Loading snapshot %s.\n", ss.str().c_str());
 		// Success on opening files
+
 		string element;
 		getline(snapshotFile, element); //Skips first line with parameter names
 		while (!snapshotFile.eof()) { // Stop at the end of the file
@@ -50,8 +58,9 @@ bool Snapshot::load() {
 			}
 
 			// Adding the particles
-			mParticles.push_back(Particle(values[0], values[1], values[2], 0));
-			// Temp IDs are all 0
+			mParticles.push_back(
+					Particle(values[0], values[1], values[2], mTAOid,
+							particleID++));
 			// Skip to next line
 			getline(snapshotFile, element, '\n');
 
@@ -71,7 +80,7 @@ bool Snapshot::load() {
 		printf("[SUCCESS] Loaded snapshot with %i galaxies, %.2f seconds.\n",
 				(int) mParticles.size(), loadingTimer.getSec());
 	} else {
-		printf("[FAIL]: Unable to open snapshot file %s! \n", mPath.c_str());
+		printf("[FAIL]: Unable to open snapshot file %s! \n", ss.str().c_str());
 	}
 	return success;
 }
@@ -105,7 +114,7 @@ vector<Particle> Snapshot::getCone(double rMax, double rMin, double theta,
 			double gTheta = acos(tempZ3 / gR);
 
 			if (gR > rMin && gR <= rMax && gTheta <= opening) {
-				particles.push_back(Particle(x, y, z, it->id));
+				particles.push_back(Particle(x, y, z, it->sid, it->id));
 			}
 		}
 	}

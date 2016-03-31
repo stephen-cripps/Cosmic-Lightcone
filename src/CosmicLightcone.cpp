@@ -23,8 +23,10 @@ LightconeSettings getLightconeSettingsFromUser();
 
 bool init();
 
-const static string VERSION_NUMBER = "0.3.0";
+const static string VERSION_NUMBER = "0.5.0";
 const static string PROGRAM_NAME = "Cosmic Lightcone";
+const string Snapshot::DIRECTORY_PATH =
+		"C:\\Users\\user\\Documents\\Lightcones\\";
 
 int main() {
 
@@ -38,10 +40,10 @@ int main() {
 	cone.setObserver(Particle(1, 1, 1));
 	//LightconeSettings ls = getLightconeSettingsFromUser();
 	LightconeSettings ls;
-	ls.mR = 1000;
-	ls.mTheta =M_PI/2;
+	ls.mR = 500;
+	ls.mTheta = M_PI / 2;
 	ls.mPhi = 0;
-	ls.mOpening = 0.5*M_PI;
+	ls.mOpening = 0.25 * M_PI;
 	cone.setLightcone(ls);
 	cone.generate();
 	cone.write();

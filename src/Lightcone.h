@@ -15,9 +15,9 @@
 #include <algorithm>	// Sort
 #include <sstream>		// String stream
 #include "Snapshot.h"
+#include "Timer.h"
 
 #include <iomanip>		// setpr
-
 struct Observer {
 	// Carry one here
 };
