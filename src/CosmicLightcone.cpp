@@ -23,10 +23,23 @@ LightconeSettings getLightconeSettingsFromUser();
 
 bool init();
 
+// Constants
 const static string VERSION_NUMBER = "0.5.0";
 const static string PROGRAM_NAME = "Cosmic Lightcone";
-const string Snapshot::DIRECTORY_PATH =
-		"C:\\Users\\user\\Documents\\Lightcones\\";
+
+// Linux
+const string Snapshot::DIRECTORY_PATH = "/media/eva/Elements/Snapshot/";
+const string Lightcone::REDSHIFT_STEP_PATH =
+		"/media/eva/Elements/Snapshot/redshiftStep";
+const string Lightcone::OUTPUT_PATH = "/media/eva/Elements/generated/";
+
+// Windows
+//const string Snapshot::DIRECTORY_PATH =
+//		"C:\\Users\\user\\Documents\\Lightcones\\";
+//const string Lightcone::REDSHIFT_STEP_PATH =
+//		"C:\\Users\\user\\Documents\\Lightcones\\redshiftStep.txt";
+//const string Lightcone::OUTPUT_PATH =
+//		"C:\\Users\\user\\Documents\\Lightcones\\generated\\";
 
 int main() {
 
@@ -43,7 +56,7 @@ int main() {
 	ls.mR = 500;
 	ls.mTheta = M_PI / 2;
 	ls.mPhi = 0;
-	ls.mOpening = 0.25 * M_PI;
+	ls.mOpening = 0.1 * M_PI;
 	cone.setLightcone(ls);
 	cone.generate();
 	cone.write();
