@@ -30,10 +30,10 @@ struct LightconeSettings {
 	double mR, mTheta, mPhi, mOpening;
 
 	LightconeSettings() :
-		mR(0), mTheta(0), mPhi(0), mOpening(0) {
+			mR(0), mTheta(0), mPhi(0), mOpening(0) {
 	}
 	LightconeSettings(double r, double theta, double phi, double opening) :
-		mR(r), mTheta(theta), mPhi(phi), mOpening(opening) {
+			mR(r), mTheta(theta), mPhi(phi), mOpening(opening) {
 	}
 	void set(double r, double theta, double phi, double opening) {
 		mR = r;
@@ -60,9 +60,11 @@ public:
 	vector<Particle> getSegment(Snapshot& snap, double rMax, double rMin);
 	void write();
 
-public:
+private:
 	static const int BOX_WIDTH = 500;
 	static const int STARTING_TAO_NUM = 1409;
+	static const string REDSHIFT_STEP_PATH;
+	static const string OUTPUT_PATH;
 
 private:
 	string mLabel;
@@ -72,7 +74,6 @@ private:
 	vector<Particle> mParticles;
 
 private:
-	int calcOffset(double);
 	bool collide(Box a, Box b);
 	void reverseRotation(vector<Particle>& par);
 	Box makeBoxFromParticles(vector<Particle>& par);

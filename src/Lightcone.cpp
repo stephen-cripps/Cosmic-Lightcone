@@ -8,6 +8,7 @@
 #include "Lightcone.h"
 
 Lightcone::Lightcone() {
+	setLightcone(LightconeSettings());
 }
 
 void Lightcone::setLightcone(LightconeSettings settings) {
@@ -26,10 +27,7 @@ void Lightcone::setLabel(string str) {
 
 bool Lightcone::loadRedshiftSteps() {
 	bool success = true;
-	string redshiftFilePath =
-			"C:\\Users\\user\\Documents\\Lightcones\\redshiftStep.txt";
-	//string redshiftFilePath = "/media/eva/Elements/Snapshot/redshiftStep";
-	ifstream redShiftFile(redshiftFilePath.c_str());
+	ifstream redShiftFile(REDSHIFT_STEP_PATH.c_str());
 	if (redShiftFile.is_open()) {
 		// Cleaning current redshiftsteps
 		mRedshiftSteps.clear();
@@ -43,7 +41,7 @@ bool Lightcone::loadRedshiftSteps() {
 		printf("[SUCCESS] Loading redshift steps successful\n");
 	} else {
 		printf("[FAIL] Unable to load redshift step file %s\n",
-				redshiftFilePath.c_str());
+				REDSHIFT_STEP_PATH.c_str());
 	}
 	return success;
 }
@@ -59,8 +57,8 @@ void Lightcone::generate() {
 	int fileIndex = 0;
 	double rMin = 0;
 	double rMax = 0;
-	for (vector<double>::iterator it = mRedshiftSteps.begin(); it
-			!= mRedshiftSteps.end(); it++, fileIndex++) {
+	for (vector<double>::iterator it = mRedshiftSteps.begin();
+			it != mRedshiftSteps.end(); it++, fileIndex++) {
 		rMax = *(it + 1) * (1 + *(it + 1)) * 4109.6;
 		bool last = false;
 		if (rMax > mR) {
@@ -79,11 +77,12 @@ void Lightcone::generate() {
 		}
 	}
 	printf(
-			"[COMPLETE] Lightcone generated, %.0f seconds, with %u particles inside.\n",
+			"[COMPLETE] Lightcone generated, %.0f seconds, with %lu particles inside.\n",
 			generationTimer.getSec(), mParticles.size());
 }
 
-vector<Particle> Lightcone::getSegment(Snapshot& snap, double rMax, double rMin) {
+vector<Particle> Lightcone::getSegment(Snapshot& snap, double rMax,
+		double rMin) {
 	printf("Generating segment (rMax, rMin) (%.0f, %.0f) . . . \n", rMax, rMin);
 	vector<Particle> inSegment;
 	// First find the observer collision box
@@ -111,8 +110,8 @@ vector<Particle> Lightcone::getSegment(Snapshot& snap, double rMax, double rMin)
 
 	// Full sky map
 	if (mOpening > M_PI / 2) {
-		obsBox = Box(mObserver.x - rMax, mObserver.y - rMax,
-				mObserver.z - rMax, 2 * rMax);
+		obsBox = Box(mObserver.x - rMax, mObserver.y - rMax, mObserver.z - rMax,
+				2 * rMax);
 	}
 
 	printf(
@@ -146,7 +145,7 @@ vector<Particle> Lightcone::getSegment(Snapshot& snap, double rMax, double rMin)
 			}
 		}
 	}
-	printf("%u boxes are required.", validOffsets.size());
+	printf("%lu boxes are required.", validOffsets.size());
 
 	// Check lightcone
 	inSegment = snap.getCone(rMax, rMin, mTheta, mPhi, mOpening, mObserver,
@@ -155,14 +154,13 @@ vector<Particle> Lightcone::getSegment(Snapshot& snap, double rMax, double rMin)
 	if (inSegment.size() == 0) {
 		printf("[Error] Segment returns 0 particles!\n");
 	}
-	printf(" Segment Size: %u\n", inSegment.size());
+	printf(" Segment Size: %lu\n", inSegment.size());
 	return inSegment;
 }
 
 void Lightcone::write() {
 	stringstream ss;
-	ss << "C:\\Users\\user\\Documents\\Lightcones\\generated\\";
-	//ss << "/media/eva/Elements/generated/";
+	ss << OUTPUT_PATH;
 	ss << setprecision(4) << "(" << mR << ")";
 	ss << setprecision(2) << "(" << mTheta / M_PI << ")";
 	ss << setprecision(2) << "(" << mPhi / M_PI << ")";
@@ -171,9 +169,9 @@ void Lightcone::write() {
 
 	ofstream file(ss.str().c_str());
 	if (file.is_open()) {
-		file << "x, y, z, id\n";
-		for (vector<Particle>::iterator it = mParticles.begin(); it
-				!= mParticles.end(); it++) {
+		file << "x, y, z, sid, id\n";
+		for (vector<Particle>::iterator it = mParticles.begin();
+				it != mParticles.end(); it++) {
 			file << it->x << ", " << it->y << ", " << it->z << ", " << it->sid
 					<< "," << it->id << "\n";
 		}
@@ -184,14 +182,6 @@ void Lightcone::write() {
 }
 
 // Misc Function
-int Lightcone::calcOffset(double pos) {
-	if (pos < 0) {
-		return (pos / BOX_WIDTH) - 1;
-	} else {
-	}
-
-}
-
 bool Lightcone::collide(Box a, Box b) {
 	if (a.x + a.w < b.x || b.x + b.w < a.x) {
 		return false;
@@ -256,7 +246,8 @@ double Lightcone::getRFromRedshift(double z) {
 // Debug
 void Lightcone::dumpParticles(vector<Particle>& par) {
 	int id = 0;
-	for (vector<Particle>::iterator it = par.begin(); it != par.end(); it++, id++) {
+	for (vector<Particle>::iterator it = par.begin(); it != par.end();
+			it++, id++) {
 		printf("id: %d (%.0f:%.0f:%.0f)\n", id, it->x, it->y, it->z);
 	}
 
