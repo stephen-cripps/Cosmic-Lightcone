@@ -60,7 +60,6 @@ public:
 	vector<Particle> getSegment(Snapshot& snap, double rMax, double rMin);
 	void write();
 
-private:
 	static const int BOX_WIDTH = 500;
 	static const int STARTING_TAO_NUM = 1409;
 	static const string REDSHIFT_STEP_PATH;
