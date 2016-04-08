@@ -59,7 +59,7 @@ void Lightcone::generate() {
 	double rMax = 0;
 	for (vector<double>::iterator it = mRedshiftSteps.begin();
 			it != mRedshiftSteps.end(); it++, fileIndex++) {
-		rMax = *(it + 1) * (1 + *(it + 1)) * 4109.6;
+		rMax = getRFromRedshift(*(it + 1) / 2);
 		bool last = false;
 		if (rMax > mR) {
 			rMax = mR;

@@ -1,0 +1,15 @@
+!SESSION 2016-04-07 09:09:15.838 -----------------------------------------------
+eclipse.buildId=4.5.0.I20150603-2000
+java.version=1.7.0_95
+java.vendor=Oracle Corporation
+BootLoader constants: OS=linux, ARCH=x86_64, WS=gtk, NL=en_GB
+Framework arguments:  -product org.eclipse.epp.package.cpp.product
+Command-line arguments:  -data /home/eva/anthemedge.CosmicLightcone/Cosmic-Lightcone/CosmicLightcone -os linux -ws gtk -arch x86_64 -product org.eclipse.epp.package.cpp.product
+
+!ENTRY org.eclipse.core.resources 2 2 2016-04-07 09:10:14.540
+!MESSAGE Save operation warnings.
+!SUBENTRY 1 org.eclipse.core.resources 2 234 2016-04-07 09:10:14.540
+!MESSAGE The project description file (.project) for 'RemoteSystemsTempFiles' was missing.  This file contains important information about the project.  A new project description file has been created, but some information about the project may have been lost.
+
+!ENTRY org.eclipse.cdt.core 1 0 2016-04-07 09:10:23.754
+!MESSAGE Indexed 'CosmicLightcone' (1 sources, 104 headers) in 9.08 sec: 8,369 declarations; 14,562 references; 0 unresolved inclusions; 0 syntax errors; 2 unresolved names (0.0087%)
