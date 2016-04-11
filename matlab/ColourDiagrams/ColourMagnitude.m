@@ -1,16 +1,21 @@
 clc 
 close
 
-% snapshot=csvread('tao.1433.0.csv',1,0);
+snapshot=csvread('tao.1409.0.csv',1,0);
 
 u=snapshot(:,9);
 r=snapshot(:,11);
-mass=snapshot(:,1);
 difference=u-r;
+x=r-5*log10(0.73);
 
-values=hist3([difference mass],[1000 1000]);
-contour(values)
 
-title('colour magnitude plot at z=1.1734')
-ylabel('M_u-M_r')
-xlabel('Mass-5logh')
+%No longer used as exporting to topcat for better graph
+% values=hist3([difference x],[1000 1000]);
+% contour(values)
+% 
+% title('colour magnitude plot at z=1.1734')
+% ylabel('M_u-M_r')
+% xlabel('M_r-5logh')
+
+m=[x,difference];
+csvwrite('ColMagMil0.csv',m)

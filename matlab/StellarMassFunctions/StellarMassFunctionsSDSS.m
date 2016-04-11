@@ -18,13 +18,19 @@ snapshot=csvread(fullName,2,0);
 M=snapshot(:,2);
 M=M(M>10);
 
+%finding the volume of the current section
+stepz = fileNo/10;
+rmin=(stepz-0.1)*((stepz-0.1)+1)*3e8/(73e3);
+rmax=(stepz)*((stepz)+1)*3e8/(73e3);
+stepVol=(14555/41252.96)*(4/3)*pi*(rmax^3-rmin^3);
+
 %Create normalised histogram, ignore infinite points to avoid issues in sum
 [c,M]=hist(M,20);
-c=log10(c);
+c=log10(c/stepVol);
 infmap=c~=-inf;
 c=c(infmap);
 M=M(infmap);
-c=c/sum(c);
+% c=c/sum(c);
 
 % Set colour depending on loop
 colour=[0 0 0];
@@ -46,12 +52,12 @@ i=i+1;
 end
 
 %plot
-axis([10 13.5 0.01 0.1])
+
 
 legend([smoothed(:,1) smoothed(:,2) smoothed(:,3) smoothed(:,4)],{zsfull(1,:),zsfull(2,:),zsfull(3,:), zsfull(4,:)})
-
+axis([ 10 12.5 -8 -3])
 
 title('Stellar Mass Function for SDSS (Passive port)')
 xlabel('$$log_{10}M_*[M_{\odot}]$$','interpreter','latex')
-ylabel('$$log_{10}N$$','interpreter','latex')
+ylabel('$$log_{10}N(Mpc^{-3})$$','interpreter','latex')
 

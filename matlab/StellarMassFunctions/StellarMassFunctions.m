@@ -1,7 +1,8 @@
 clc 
 close
 
-
+h=0.73;
+simVol=(500/h)^3;
 
 i=1;
 %read in redshifts
@@ -24,11 +25,11 @@ M=log10(M);
 
 %Create normalised histogram, ignore infinite points to avoid issues in sum
 [c,M]=hist(M,20);
-c=log10(c);
+c=log10(c/simVol);
 infmap=c~=-inf;
 c=c(infmap);
 M=M(infmap);
-c=c/sum(c);
+%c=c/sum(c);
 
 % Set colour depending on loop
 colour=[0 0 0];
@@ -52,5 +53,5 @@ legend([smoothed(:,1) smoothed(:,2) smoothed(:,3) smoothed(:,4)],{zs(1,:),zs(2,:
 
 title('Stellar Mass Function (Millenium Data)')
 xlabel('$$log_{10}M_*[M_{\odot}]$$','interpreter','latex')
-ylabel('$$log_{10}N$$','interpreter','latex')
+ylabel('$$log_{10}N(Mpc^{-3})$$','interpreter','latex')   
 
