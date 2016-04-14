@@ -1,13 +1,23 @@
 clc 
 close
 
-snapshot=csvread('tao.1409.0.csv',1,0);
+ snapshot=csvread('SDSS/colour01.csv',2,0);
+% 
+ mass= snapshot(:,1);
+ SDSSu=snapshot(:,2);
+ SDSSr=snapshot(:,3);
+map= mass > 0.1 & SDSSu > -100 & SDSSu <-17.5;
+ SDSSu=SDSSu(map);
+ SDSSr=SDSSr(map);
+ difference=SDSSu-SDSSr;
+ x=SDSSr-5*log10(0.73);
+ 
 
-u=snapshot(:,9);
-r=snapshot(:,11);
-difference=u-r;
-x=r-5*log10(0.73);
-
+% 
+% %Removing outliers for SDSS data
+% map= difference >-100;
+% difference=difference(map);
+ %x=x(map);
 
 %No longer used as exporting to topcat for better graph
 % values=hist3([difference x],[1000 1000]);
@@ -18,4 +28,6 @@ x=r-5*log10(0.73);
 % xlabel('M_r-5logh')
 
 m=[x,difference];
-csvwrite('ColMagMil0.csv',m)
+csvwrite('ColourMagOutputs/SDSSMagLim.csv',m)
+
+disp('done it m8')
