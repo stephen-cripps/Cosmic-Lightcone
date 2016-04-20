@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['x',['x',['../structParticle.html#a1e3e5e103cee69ae9acb9c3269d009d7',1,'Particle::x()'],['../structBox.html#a3527f292bb4bde18936b2dfc76097ea0',1,'Box::x()']]]
+  ['w',['w',['../structBox.html#a52c7a693671af3a6b9e713c989c28a1b',1,'Box']]],
+  ['write',['write',['../classLightcone.html#afcf40a6029a13ec619317b3eea792795',1,'Lightcone']]]
 ];

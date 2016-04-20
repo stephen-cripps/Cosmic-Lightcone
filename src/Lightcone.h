@@ -18,32 +18,29 @@
 #include "Timer.h"
 
 #include <iomanip>		// setpr
-struct Observer {
-	// Carry one here
-};
 
 struct LightconeSettings {
 	const static double THETA_MAX = M_PI;
 	const static double PHI_MAX = 2 * M_PI;
 	const static double OPENING_MAX = M_PI / 4;
 
-	double mR, mTheta, mPhi, mOpening;
+	double mR, mTheta, mPhi, mHO;
 
 	LightconeSettings() :
-			mR(0), mTheta(0), mPhi(0), mOpening(0) {
+			mR(0), mTheta(0), mPhi(0), mHO(0) {
 	}
 	LightconeSettings(double r, double theta, double phi, double opening) :
-			mR(r), mTheta(theta), mPhi(phi), mOpening(opening) {
+			mR(r), mTheta(theta), mPhi(phi), mHO(opening) {
 	}
 	void set(double r, double theta, double phi, double opening) {
 		mR = r;
 		mTheta = theta;
 		mPhi = phi;
-		mOpening = opening;
+		mHO = opening;
 	}
 	void dump() {
 		printf("Lightcone Setting: %.2f:%.2f:%.2f:%.2f \n", mR, mTheta, mPhi,
-				mOpening);
+				mHO);
 	}
 };
 
@@ -61,9 +58,12 @@ public:
 	void write();
 
 	static const int BOX_WIDTH = 500;
-	static const int STARTING_TAO_NUM = 1409;
-	static const string REDSHIFT_STEP_PATH;
-	static const string OUTPUT_PATH;
+	static int TAO_STARTING_ID;
+	static string REDSHIFT_PATH;
+	static string OUTPUT_PATH;
+
+	string getSettingString();
+	string outputFilePath;
 
 private:
 	string mLabel;

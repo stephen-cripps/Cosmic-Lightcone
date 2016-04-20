@@ -1,0 +1,9 @@
+TEST_MODE=TRUE
+TAO_STARTING_ID=1409
+REDSHIFT_LINUX_PATH=/media/eva/Elements/Snapshot/redshiftStep
+SNAPSHOTS_LINUX_PATH=/media/eva/Elements/Snapshot/
+SNAPSHOTS_TEST_LINUX_PATH=/media/eva/Elements/mini/
+OUTPUT_LINUX_PATH=/media/eva/Elements/OUTPUT/
+
+# Copy the settings from either settingsLinux or settingsWindows file
+# No space

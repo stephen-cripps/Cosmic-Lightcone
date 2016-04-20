@@ -8,11 +8,11 @@
 #include "Snapshot.h"
 
 Snapshot::Snapshot() :
-	mTAOid(0) {
+		mTAOid(0) {
 }
 
 Snapshot::Snapshot(int id) :
-	mTAOid(id) {
+		mTAOid(id) {
 }
 
 bool Snapshot::load() {
@@ -52,7 +52,8 @@ bool Snapshot::load() {
 			getline(snapshotFile, element, ',');
 
 			// Read the next three position parameters
-			for (unsigned int index = 0; index < PARTICLE_PARAMETERS_TOTAL - 1; index++) {
+			for (unsigned int index = 0; index < PARTICLE_PARAMETERS_TOTAL - 1;
+					index++) {
 				getline(snapshotFile, element, ',');
 				values[index] = atof(element.c_str());
 			}
@@ -88,10 +89,10 @@ bool Snapshot::load() {
 vector<Particle> Snapshot::getCone(double rMax, double rMin, double theta,
 		double phi, double opening, Particle obs, vector<Particle> offsets) {
 	vector<Particle> particles;
-	for (vector<Particle>::iterator it = mParticles.begin(); it
-			!= mParticles.end(); it++) {
-		for (vector<Particle>::iterator pit = offsets.begin(); pit
-				!= offsets.end(); pit++) {
+	for (vector<Particle>::iterator it = mParticles.begin();
+			it != mParticles.end(); it++) {
+		for (vector<Particle>::iterator pit = offsets.begin();
+				pit != offsets.end(); pit++) {
 			// Shift the box by offset
 			double x = it->x + BOX_WIDTH * pit->x;
 			double y = it->y + BOX_WIDTH * pit->y;
