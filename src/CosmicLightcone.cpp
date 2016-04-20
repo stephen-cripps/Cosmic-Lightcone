@@ -12,6 +12,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <vector>
+#include <fstream>		// File stream
 #include "Lightcone.h"
 #include "Snapshot.h"
 
@@ -21,28 +22,22 @@ void printSpacer();
 string getStringFromUser(string str);
 double getDoubleFromUser(string str, double max, double min);
 LightconeSettings getLightconeSettingsFromUser();
+Particle getObserverPositionFromUser();
 string getSnapPath(int sid);
 
 bool init();
+bool loadSettings();
 bool make(string name);
 
 // Constants
-const static string VERSION_NUMBER = "0.8.0";
+const static string VERSION_NUMBER = "0.8.2";
 const static string PROGRAM_NAME = "Cosmic Lightcone";
 
 // Linux
-const string Snapshot::DIRECTORY_PATH = "/media/eva/Elements/Snapshot/";
-const string Lightcone::REDSHIFT_STEP_PATH =
-		"/media/eva/Elements/Snapshot/redshiftStep";
-const string Lightcone::OUTPUT_PATH = "/media/eva/Elements/generated/";
-
-// Windows
-//const string Snapshot::DIRECTORY_PATH =
-//		"C:\\Users\\user\\Documents\\Lightcones\\mini\\";
-//const string Lightcone::REDSHIFT_STEP_PATH =
-//		"C:\\Users\\user\\Documents\\Lightcones\\redshiftStep.txt";
-//const string Lightcone::OUTPUT_PATH =
-//		"C:\\Users\\user\\Documents\\Lightcones\\generated\\";
+string Snapshot::DIRECTORY_PATH = "";
+string Lightcone::REDSHIFT_PATH = "";
+string Lightcone::OUTPUT_PATH = "";
+int Lightcone::TAO_STARTING_ID = 1409;
 
 int main() {
 
@@ -52,21 +47,14 @@ int main() {
 
 	Lightcone cone;
 	cone.loadRedshiftSteps();
-	// TO DO: menu stuff here
-	cone.setObserver(Particle(0, 0, 0));
-	//LightconeSettings ls = getLightconeSettingsFromUser();
-	LightconeSettings ls;
-	ls.mR = 50;
-	ls.mTheta = M_PI / 2;
-	ls.mPhi = M_PI;
-	ls.mOpening = 0.1 * M_PI;
-	cone.setLightcone(ls);
+	cone.setObserver(getObserverPositionFromUser());
+	cone.setLightcone(getLightconeSettingsFromUser());
 	cone.generate();
 	cone.write();
-
 	cout << "Generation Run time: " << runTimer.getSec() << " Seconds" << endl;
-	make("(50)(0.5)(1)(0.1).csv");
-
+	printSpacer();
+	make(cone.getSettingString());
+	printSpacer();
 	cout << "Total Run time: " << runTimer.getSec() << " Seconds" << endl;
 	return 0;
 }
@@ -78,6 +66,60 @@ bool init() {
 	cout << "By Hongbo Tian & Stephen Cripps @ The University of Nottingham "
 			<< endl;
 	printSpacer();
+
+	cout << "Loading System Settings . . . " << endl;
+	success = loadSettings();
+	return success;
+}
+
+bool loadSettings() {
+	bool success = true;
+	ifstream settingsFile("settings");
+	// No Error detection here
+	bool TestMode = false;
+
+	if (settingsFile.is_open()) {
+		printSpacer();
+		string input;
+		// Test Mode
+		getline(settingsFile, input, '=');
+		getline(settingsFile, input, '\n');
+		if (input == "TRUE") {
+			TestMode = true;
+			cout << "Program is in TEST MODE." << endl;
+		}
+		// Tao starting ID
+		getline(settingsFile, input, '=');
+		getline(settingsFile, input, '\n');
+		Lightcone::TAO_STARTING_ID = atoi(input.c_str());
+		cout << "SET TAO staring ID: " << Lightcone::TAO_STARTING_ID << endl;
+		// Redshift
+		getline(settingsFile, input, '=');
+		getline(settingsFile, input, '\n');
+		Lightcone::REDSHIFT_PATH = input;
+		cout << "Set Redshift: " << input.c_str() << endl;
+		// Snapshots
+		if (TestMode) {
+			getline(settingsFile, input, '\n');
+		}
+		getline(settingsFile, input, '=');
+		getline(settingsFile, input, '\n');
+		Snapshot::DIRECTORY_PATH = input;
+		cout << "SET Snapshots: " << input.c_str() << endl;
+		if (!TestMode) {
+			getline(settingsFile, input, '\n');
+		}
+		// Output
+		getline(settingsFile, input, '=');
+		getline(settingsFile, input, '\n');
+		Lightcone::OUTPUT_PATH = input;
+		cout << "SET Output: " << input.c_str() << endl;
+		printSpacer();
+	} else {
+		printf("[FAIL] Unable to reading settings.\n");
+		success = false;
+	}
+
 	return success;
 }
 
@@ -86,7 +128,7 @@ bool make(string name) {
 	vector<Particle> particles;
 	stringstream iss;
 	iss << Lightcone::OUTPUT_PATH;
-	iss << name;
+	iss << name << ".csv";
 	ifstream inputFile(iss.str().c_str());
 	if (inputFile.is_open()) {
 		string element;
@@ -121,7 +163,7 @@ bool make(string name) {
 	if (success) {
 		stringstream oss;
 		oss << Lightcone::OUTPUT_PATH;
-		oss << "Catalogue";
+		oss << "MOCK";
 		oss << name;
 		ofstream outputFile(oss.str().c_str());
 		if (outputFile.is_open()) {
@@ -137,8 +179,6 @@ bool make(string name) {
 			getline(snapFile, line);
 			outputFile << line;
 			while (it != particles.end()) {
-//				printf("it \t %d/%d\n", it->sid, it->id);
-//				printf("file \t %d/%d\n", sid, id);
 				if (it->sid != sid) {
 					// Load the next snapshot
 					sid = it->sid;
@@ -188,7 +228,7 @@ string getStringFromUser(string str) {
 	return rawInput;
 }
 
-double getDoubleFromUser(string str, double max = 40000, double min = 0) {
+double getDoubleFromUser(string str, double min, double max) {
 	bool valid = false;
 	double value;
 	string rawInput;
@@ -208,17 +248,29 @@ double getDoubleFromUser(string str, double max = 40000, double min = 0) {
 }
 
 LightconeSettings getLightconeSettingsFromUser() {
+	printSpacer();
 	LightconeSettings lightconeSettings;
 	double r, theta, phi, opening;
-	r = getDoubleFromUser("Lightcone radius");
-	theta = getDoubleFromUser("Lightcone Polar Angle",
+	r = getDoubleFromUser("Lightcone radius", 0, 80000);
+	theta = getDoubleFromUser("Lightcone Polar Angle", 0,
 			lightconeSettings.THETA_MAX);
-	phi = getDoubleFromUser("Lightcone Azimuthal Angle",
+	phi = getDoubleFromUser("Lightcone Azimuthal Angle", 0,
 			lightconeSettings.PHI_MAX);
-	opening = getDoubleFromUser("Lightcone Opening Angle",
+	opening = getDoubleFromUser("Lightcone Half Opening Angle", 0,
 			lightconeSettings.OPENING_MAX);
 	lightconeSettings.set(r, theta, phi, opening);
+	printSpacer();
 	return lightconeSettings;
+}
+
+Particle getObserverPositionFromUser() {
+	Particle obs;
+	printSpacer();
+	obs.x = getDoubleFromUser("Observer X Position", 0, 500);
+	obs.y = getDoubleFromUser("Observer Y Position", 0, 500);
+	obs.z = getDoubleFromUser("Observer Z Position", 0, 500);
+	printSpacer();
+	return obs;
 }
 
 string getSnapPath(int sid) {

@@ -65,7 +65,7 @@ public:
 	vector<Particle> mParticles;
 	int getSize();
 
-	const static string DIRECTORY_PATH;
+	static string DIRECTORY_PATH;
 };
 
 #endif /* SNAPSHOT_H_ */

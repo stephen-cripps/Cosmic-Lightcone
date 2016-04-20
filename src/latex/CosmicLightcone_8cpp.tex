@@ -5,6 +5,8 @@
 {\ttfamily \#include $<$ctype.\+h$>$}\\*
 {\ttfamily \#include $<$stdio.\+h$>$}\\*
 {\ttfamily \#include $<$math.\+h$>$}\\*
+{\ttfamily \#include $<$vector$>$}\\*
+{\ttfamily \#include $<$fstream$>$}\\*
 {\ttfamily \#include \char`\"{}Lightcone.\+h\char`\"{}}\\*
 {\ttfamily \#include \char`\"{}Snapshot.\+h\char`\"{}}\\*
 Include dependency graph for Cosmic\+Lightcone.\+cpp\+:
@@ -26,7 +28,15 @@ double \hyperlink{CosmicLightcone_8cpp_a814ce0ea2984e3f9d99029d27b1668e3}{get\+D
 \item 
 \hyperlink{structLightconeSettings}{Lightcone\+Settings} \hyperlink{CosmicLightcone_8cpp_af81c461b4c952de1a4f9115b17ef7411}{get\+Lightcone\+Settings\+From\+User} ()
 \item 
+\hyperlink{structParticle}{Particle} \hyperlink{CosmicLightcone_8cpp_a6292006b61c0c0af0430458c13ee11f8}{get\+Observer\+Position\+From\+User} ()
+\item 
+string \hyperlink{CosmicLightcone_8cpp_a47821d7421b61ec01ffb0b2ed16b479b}{get\+Snap\+Path} (int sid)
+\item 
 bool \hyperlink{CosmicLightcone_8cpp_aee8048628ff2b5c026c9e15acdcaacb8}{init} ()
+\item 
+bool \hyperlink{CosmicLightcone_8cpp_af73ed9d8b8324e8a1b50b5e23960b1f6}{load\+Settings} ()
+\item 
+bool \hyperlink{CosmicLightcone_8cpp_a5ba7abb446bf8b8cdb772fb1ef9013d7}{make} (string name)
 \item 
 int \hyperlink{CosmicLightcone_8cpp_ae66f6b31b5ad750f1fe042a706a4e3d4}{main} ()
 \end{DoxyCompactItemize}
@@ -38,8 +48,8 @@ int \hyperlink{CosmicLightcone_8cpp_ae66f6b31b5ad750f1fe042a706a4e3d4}{main} ()
 \subsubsection[{get\+Double\+From\+User}]{\setlength{\rightskip}{0pt plus 5cm}double get\+Double\+From\+User (
 \begin{DoxyParamCaption}
 \item[{string}]{str, }
-\item[{double}]{max = {\ttfamily 40000}, }
-\item[{double}]{min = {\ttfamily 0}}
+\item[{double}]{max, }
+\item[{double}]{min}
 \end{DoxyParamCaption}
 )}\label{CosmicLightcone_8cpp_a814ce0ea2984e3f9d99029d27b1668e3}
 \hypertarget{CosmicLightcone_8cpp_af81c461b4c952de1a4f9115b17ef7411}{}\index{Cosmic\+Lightcone.\+cpp@{Cosmic\+Lightcone.\+cpp}!get\+Lightcone\+Settings\+From\+User@{get\+Lightcone\+Settings\+From\+User}}
@@ -49,6 +59,20 @@ int \hyperlink{CosmicLightcone_8cpp_ae66f6b31b5ad750f1fe042a706a4e3d4}{main} ()
 {}
 \end{DoxyParamCaption}
 )}\label{CosmicLightcone_8cpp_af81c461b4c952de1a4f9115b17ef7411}
+\hypertarget{CosmicLightcone_8cpp_a6292006b61c0c0af0430458c13ee11f8}{}\index{Cosmic\+Lightcone.\+cpp@{Cosmic\+Lightcone.\+cpp}!get\+Observer\+Position\+From\+User@{get\+Observer\+Position\+From\+User}}
+\index{get\+Observer\+Position\+From\+User@{get\+Observer\+Position\+From\+User}!Cosmic\+Lightcone.\+cpp@{Cosmic\+Lightcone.\+cpp}}
+\subsubsection[{get\+Observer\+Position\+From\+User}]{\setlength{\rightskip}{0pt plus 5cm}{\bf Particle} get\+Observer\+Position\+From\+User (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\label{CosmicLightcone_8cpp_a6292006b61c0c0af0430458c13ee11f8}
+\hypertarget{CosmicLightcone_8cpp_a47821d7421b61ec01ffb0b2ed16b479b}{}\index{Cosmic\+Lightcone.\+cpp@{Cosmic\+Lightcone.\+cpp}!get\+Snap\+Path@{get\+Snap\+Path}}
+\index{get\+Snap\+Path@{get\+Snap\+Path}!Cosmic\+Lightcone.\+cpp@{Cosmic\+Lightcone.\+cpp}}
+\subsubsection[{get\+Snap\+Path}]{\setlength{\rightskip}{0pt plus 5cm}string get\+Snap\+Path (
+\begin{DoxyParamCaption}
+\item[{int}]{sid}
+\end{DoxyParamCaption}
+)}\label{CosmicLightcone_8cpp_a47821d7421b61ec01ffb0b2ed16b479b}
 \hypertarget{CosmicLightcone_8cpp_ac549e4eaf7118344de33880d88e38543}{}\index{Cosmic\+Lightcone.\+cpp@{Cosmic\+Lightcone.\+cpp}!get\+String\+From\+User@{get\+String\+From\+User}}
 \index{get\+String\+From\+User@{get\+String\+From\+User}!Cosmic\+Lightcone.\+cpp@{Cosmic\+Lightcone.\+cpp}}
 \subsubsection[{get\+String\+From\+User}]{\setlength{\rightskip}{0pt plus 5cm}string get\+String\+From\+User (
@@ -63,6 +87,13 @@ int \hyperlink{CosmicLightcone_8cpp_ae66f6b31b5ad750f1fe042a706a4e3d4}{main} ()
 {}
 \end{DoxyParamCaption}
 )}\label{CosmicLightcone_8cpp_aee8048628ff2b5c026c9e15acdcaacb8}
+\hypertarget{CosmicLightcone_8cpp_af73ed9d8b8324e8a1b50b5e23960b1f6}{}\index{Cosmic\+Lightcone.\+cpp@{Cosmic\+Lightcone.\+cpp}!load\+Settings@{load\+Settings}}
+\index{load\+Settings@{load\+Settings}!Cosmic\+Lightcone.\+cpp@{Cosmic\+Lightcone.\+cpp}}
+\subsubsection[{load\+Settings}]{\setlength{\rightskip}{0pt plus 5cm}bool load\+Settings (
+\begin{DoxyParamCaption}
+{}
+\end{DoxyParamCaption}
+)}\label{CosmicLightcone_8cpp_af73ed9d8b8324e8a1b50b5e23960b1f6}
 \hypertarget{CosmicLightcone_8cpp_ae66f6b31b5ad750f1fe042a706a4e3d4}{}\index{Cosmic\+Lightcone.\+cpp@{Cosmic\+Lightcone.\+cpp}!main@{main}}
 \index{main@{main}!Cosmic\+Lightcone.\+cpp@{Cosmic\+Lightcone.\+cpp}}
 \subsubsection[{main}]{\setlength{\rightskip}{0pt plus 5cm}int main (
@@ -70,6 +101,13 @@ int \hyperlink{CosmicLightcone_8cpp_ae66f6b31b5ad750f1fe042a706a4e3d4}{main} ()
 {}
 \end{DoxyParamCaption}
 )}\label{CosmicLightcone_8cpp_ae66f6b31b5ad750f1fe042a706a4e3d4}
+\hypertarget{CosmicLightcone_8cpp_a5ba7abb446bf8b8cdb772fb1ef9013d7}{}\index{Cosmic\+Lightcone.\+cpp@{Cosmic\+Lightcone.\+cpp}!make@{make}}
+\index{make@{make}!Cosmic\+Lightcone.\+cpp@{Cosmic\+Lightcone.\+cpp}}
+\subsubsection[{make}]{\setlength{\rightskip}{0pt plus 5cm}bool make (
+\begin{DoxyParamCaption}
+\item[{string}]{name}
+\end{DoxyParamCaption}
+)}\label{CosmicLightcone_8cpp_a5ba7abb446bf8b8cdb772fb1ef9013d7}
 \hypertarget{CosmicLightcone_8cpp_afdd7ee29509cd0870f52e020c306fc70}{}\index{Cosmic\+Lightcone.\+cpp@{Cosmic\+Lightcone.\+cpp}!print\+Spacer@{print\+Spacer}}
 \index{print\+Spacer@{print\+Spacer}!Cosmic\+Lightcone.\+cpp@{Cosmic\+Lightcone.\+cpp}}
 \subsubsection[{print\+Spacer}]{\setlength{\rightskip}{0pt plus 5cm}void print\+Spacer (

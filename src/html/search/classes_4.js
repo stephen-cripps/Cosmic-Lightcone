@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['snapshot',['Snapshot',['../classSnapshot.html',1,'']]]
+  ['timer',['Timer',['../classTimer.html',1,'']]]
 ];

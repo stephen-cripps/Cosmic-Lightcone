@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['particle',['Particle',['../structParticle.html',1,'']]]
+  ['snapshot',['Snapshot',['../classSnapshot.html',1,'']]]
 ];

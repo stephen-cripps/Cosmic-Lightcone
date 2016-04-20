@@ -1,0 +1,7 @@
+TEST_MODE = TRUE
+TAO_STARTING_ID = 
+REDSHIFT_WINDOWS_PATH = C:\\Users\\user\\Documents\\Lightcones\\redshiftStep.txt
+SNAPSHOTS_WINDOWS_PATH = C:\\Users\\user\\Documents\\Lightcones\\
+SNAPSHOTS_TEST_WINDOWS_PATH = C:\\Users\\user\\Documents\\Lightcones\\mini\\
+OUTPUT_WINDOWS_PATH = C:\\Users\\user\\Documents\\Lightcones\\OUTPUT\\
+# Windows

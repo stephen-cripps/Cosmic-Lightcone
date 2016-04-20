@@ -9,13 +9,14 @@
 
 Lightcone::Lightcone() {
 	setLightcone(LightconeSettings());
+	outputFilePath = "";
 }
 
 void Lightcone::setLightcone(LightconeSettings settings) {
 	mR = settings.mR;
 	mTheta = settings.mTheta;
 	mPhi = settings.mPhi;
-	mOpening = settings.mOpening;
+	mOpening = settings.mHO;
 }
 void Lightcone::setObserver(Particle obs) {
 	mObserver = obs;
@@ -27,7 +28,7 @@ void Lightcone::setLabel(string str) {
 
 bool Lightcone::loadRedshiftSteps() {
 	bool success = true;
-	ifstream redShiftFile(REDSHIFT_STEP_PATH.c_str());
+	ifstream redShiftFile(REDSHIFT_PATH.c_str());
 	if (redShiftFile.is_open()) {
 		// Cleaning current redshiftsteps
 		mRedshiftSteps.clear();
@@ -41,7 +42,7 @@ bool Lightcone::loadRedshiftSteps() {
 		printf("[SUCCESS] Loading redshift steps successful\n");
 	} else {
 		printf("[FAIL] Unable to load redshift step file %s\n",
-				REDSHIFT_STEP_PATH.c_str());
+				REDSHIFT_PATH.c_str());
 	}
 	return success;
 }
@@ -66,7 +67,7 @@ void Lightcone::generate() {
 			last = true;
 		}
 		// Load the snapshot according to redshift
-		Snapshot snap(STARTING_TAO_NUM + fileIndex);
+		Snapshot snap(TAO_STARTING_ID + fileIndex);
 		snap.load();
 		vector<Particle> segment = getSegment(snap, rMax, rMin);
 		// merge
@@ -145,7 +146,7 @@ vector<Particle> Lightcone::getSegment(Snapshot& snap, double rMax,
 			}
 		}
 	}
-	printf("%lu boxes are required.", validOffsets.size());
+	printf("%lu boxes are required.\n", validOffsets.size());
 
 	// Check lightcone
 	inSegment = snap.getCone(rMax, rMin, mTheta, mPhi, mOpening, mObserver,
@@ -161,11 +162,9 @@ vector<Particle> Lightcone::getSegment(Snapshot& snap, double rMax,
 void Lightcone::write() {
 	stringstream ss;
 	ss << OUTPUT_PATH;
-	ss << setprecision(4) << "(" << mR << ")";
-	ss << setprecision(2) << "(" << mTheta / M_PI << ")";
-	ss << setprecision(2) << "(" << mPhi / M_PI << ")";
-	ss << setprecision(2) << "(" << mOpening / M_PI << ")";
+	ss << getSettingString();
 	ss << "." << "csv";
+	outputFilePath = ss.str();
 
 	ofstream file(ss.str().c_str());
 	if (file.is_open()) {
@@ -179,6 +178,15 @@ void Lightcone::write() {
 	} else {
 		printf("[FAIL] Unable to write to %s\n", ss.str().c_str());
 	}
+}
+
+string Lightcone::getSettingString() {
+	stringstream ss;
+	ss << setprecision(4) << "(" << mR << ")";
+	ss << setprecision(2) << "(" << mTheta / M_PI << ")";
+	ss << setprecision(2) << "(" << mPhi / M_PI << ")";
+	ss << setprecision(2) << "(" << mOpening / M_PI << ")";
+	return ss.str();
 }
 
 // Misc Function

@@ -1,0 +1,7 @@
+TEST_MODE = TRUE
+TAO_STARTING_ID = 
+REDSHIFT_LINUX_PATH = /media/eva/Elements/Snapshot/redshiftStep
+SNAPSHOTS_LINUX_PATH = /media/eva/Elements/Snapshot/
+SNAPSHOTS_TEST_LINUX_PATH = 
+OUTPUT_LINUX_PATH = /media/eva/Elements/OUTPUT/
+# Linux
