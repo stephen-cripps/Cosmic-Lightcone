@@ -47,8 +47,7 @@ bool Snapshot::load() {
 			// Array of parameters
 			double values[PARTICLE_PARAMETERS_TOTAL];
 
-			// Skip the first two mass parameters
-			getline(snapshotFile, element, ',');
+			// Skip the first mass parameter
 			getline(snapshotFile, element, ',');
 
 			// Read the next three position parameters

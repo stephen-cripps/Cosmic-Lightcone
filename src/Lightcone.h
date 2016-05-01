@@ -65,12 +65,14 @@ public:
 	string getSettingString();
 	string outputFilePath;
 
+	vector<Particle> mParticles;
+
 private:
 	string mLabel;
 	double mR, mTheta, mPhi, mOpening;
 	Particle mObserver;
 	vector<double> mRedshiftSteps;
-	vector<Particle> mParticles;
+
 
 private:
 	bool collide(Box a, Box b);

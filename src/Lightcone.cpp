@@ -183,9 +183,9 @@ void Lightcone::write() {
 string Lightcone::getSettingString() {
 	stringstream ss;
 	ss << setprecision(4) << "(" << mR << ")";
-	ss << setprecision(2) << "(" << mTheta / M_PI << ")";
-	ss << setprecision(2) << "(" << mPhi / M_PI << ")";
-	ss << setprecision(2) << "(" << mOpening / M_PI << ")";
+	ss << setprecision(2) << "(" << 180 * mTheta / M_PI << ")";
+	ss << setprecision(2) << "(" << 180 * mPhi / M_PI << ")";
+	ss << setprecision(2) << "(" << 180 * mOpening / M_PI << ")";
 	return ss.str();
 }
 
