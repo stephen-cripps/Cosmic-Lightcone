@@ -27,7 +27,7 @@ fun = @(z) 1./sqrt(omega_m .* (1 + z) .^ 3 + omega_l);
 z = zeros(length(d), 1);
 
 % Generate a superfine lookpup table
-tableSize = 20000;
+tableSize = 10000;
 tic
 fprintf('Generating Loopup Table with Size: %d\n', tableSize);
 zLookup = linspace(0, 6, tableSize);
@@ -50,7 +50,7 @@ toc
 
 
 %% Magnitude Distoration
-apparent = @(Mag, d) Mag - 5 .* (1 - log10(d));
+apparent = @(Mag, d) Mag - 5 .* (1 - log10(d*1e6));
 
 u = apparent(M(:, 8), d);
 r = apparent(M(:, 9), d);
