@@ -45,15 +45,10 @@ tic
 for i = 1:length(d)
     [~, I] = min(abs(dLookup - d(i)));
     z(i) = zLookup(I);
-    % cosmological redshift
-    
 end
 fprintf('Redshift Lookup Complete\n');
 toc
 
-% Velocity descriptions
-vr = vr + normrnd(91,50,[1 length(vr)]);
-z = (1+z) .* (1+vr./c)-1;
 
 % %% Magnitude Distoration
 % apparent = @(Mag, d) Mag - 5 .* (1 - log10(d*1e6));
@@ -68,7 +63,7 @@ toc;
 
 %% Combine everything together 
 
-N = [z, M(:, 1), massErr, M(:, 8), uErr, M(:, 9), rErr];
+N = [z, M(:, 1), massErr, u, uErr, r, rErr];
 
 end
 
