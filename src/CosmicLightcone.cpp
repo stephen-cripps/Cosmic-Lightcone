@@ -28,6 +28,7 @@ string getSnapPath(int sid);
 bool init();
 bool loadSettings();
 bool make(string name);
+bool makeNow(vector<Particle> particles, LightconeSettings settings);
 
 // Constants
 const static string VERSION_NUMBER = "0.8.2";
@@ -37,7 +38,7 @@ const static string PROGRAM_NAME = "Cosmic Lightcone";
 string Snapshot::DIRECTORY_PATH = "";
 string Lightcone::REDSHIFT_PATH = "";
 string Lightcone::OUTPUT_PATH = "";
-int Lightcone::TAO_STARTING_ID = 1409;
+int Lightcone::TAO_STARTING_ID = 0;
 
 int main() {
 
@@ -45,15 +46,16 @@ int main() {
 	runTimer.start();
 	init();
 
+	LightconeSettings coneSettings = getLightconeSettingsFromUser();
 	Lightcone cone;
 	cone.loadRedshiftSteps();
 	cone.setObserver(getObserverPositionFromUser());
-	cone.setLightcone(getLightconeSettingsFromUser());
+	cone.setLightcone(coneSettings);
 	cone.generate();
 	cone.write();
 	cout << "Generation Run time: " << runTimer.getSec() << " Seconds" << endl;
 	printSpacer();
-	make(cone.getSettingString());
+	makeNow(cone.mParticles, coneSettings);
 	printSpacer();
 	cout << "Total Run time: " << runTimer.getSec() << " Seconds" << endl;
 	return 0;
@@ -170,7 +172,7 @@ bool make(string name) {
 			// Continue here
 			vector<Particle>::iterator it = particles.begin();
 
-			string mt, mb, rest;
+			string mt, rest;
 			int sid = 1409;
 			int id = -1;
 			string line;
@@ -194,15 +196,14 @@ bool make(string name) {
 						}
 
 						getline(snapFile, mt, ',');
-						getline(snapFile, mb, ',');
 						getline(snapFile, line, ',');
 						getline(snapFile, line, ',');
 						getline(snapFile, line, ',');
 						getline(snapFile, rest, '\n');
 						id++;
 					} else {
-						outputFile << mt << ", " << mb << ", " << it->x << ", "
-								<< it->y << ", " << it->z << "," << rest;
+						outputFile << mt << ", " << it->x << ", " << it->y
+								<< ", " << it->z << "," << rest;
 						it++;
 					}
 				}
@@ -212,6 +213,66 @@ bool make(string name) {
 			success = false;
 		}
 	}
+	return success;
+}
+
+bool makeNow(vector<Particle> particles, LightconeSettings settings) {
+	bool success = true;
+
+	stringstream oss;
+	oss << Lightcone::OUTPUT_PATH;
+	oss << "MOCK";
+	oss << "(" << settings.mR << ")";
+	oss << "(" << 180 * settings.mTheta / M_PI << ")";
+	oss << "(" << 180 * settings.mPhi / M_PI << ")";
+	oss << "(" << 180 * settings.OPENING_MAX / M_PI << ")";
+	oss << ".csv";
+	ofstream outputFile(oss.str().c_str());
+	if (outputFile.is_open()) {
+		// Continue here
+		vector<Particle>::iterator it = particles.begin();
+
+		string mt, rest;
+		int sid = 1409;
+		int id = -1;
+		string line;
+		// No error detection here!!!
+		ifstream snapFile(getSnapPath(sid).c_str());
+		getline(snapFile, line);
+		outputFile << line;
+		while (it != particles.end()) {
+			if (it->sid != sid) {
+				// Load the next snapshot
+				sid = it->sid;
+				snapFile.close();
+				snapFile.open(getSnapPath(it->sid).c_str());
+				getline(snapFile, line);
+				id = -1;
+			} else {
+				if (it->id != id) {
+					while (id != it->id - 1) {
+						getline(snapFile, line);
+						id++;
+					}
+
+					getline(snapFile, mt, ',');
+					getline(snapFile, line, ',');
+					getline(snapFile, line, ',');
+					getline(snapFile, line, ',');
+					getline(snapFile, rest, '\n');
+					id++;
+				} else {
+					outputFile << mt << ", " << it->x << ", " << it->y << ", "
+							<< it->z << "," << rest;
+					it++;
+				}
+			}
+		}
+	} else {
+		printf("[FAIL] Make unable to write to %s\n", oss.str().c_str());
+		success = false;
+	}
+
 	return success;
 }
 
@@ -252,12 +313,15 @@ LightconeSettings getLightconeSettingsFromUser() {
 	LightconeSettings lightconeSettings;
 	double r, theta, phi, opening;
 	r = getDoubleFromUser("Lightcone radius", 0, 80000);
-	theta = getDoubleFromUser("Lightcone Polar Angle", 0,
-			lightconeSettings.THETA_MAX);
-	phi = getDoubleFromUser("Lightcone Azimuthal Angle", 0,
-			lightconeSettings.PHI_MAX);
-	opening = getDoubleFromUser("Lightcone Half Opening Angle", 0,
-			lightconeSettings.OPENING_MAX);
+	theta = M_PI
+			* getDoubleFromUser("Lightcone Polar Angle [Degrees]", 0,
+					lightconeSettings.THETA_MAX) / 180;
+	phi = M_PI
+			* getDoubleFromUser("Lightcone Azimuthal Angle [Degrees]", 0,
+					lightconeSettings.PHI_MAX) / 180;
+	opening = M_PI
+			* getDoubleFromUser("Lightcone Half Opening Angle [Degrees]", 0,
+					lightconeSettings.OPENING_MAX) / 180;
 	lightconeSettings.set(r, theta, phi, opening);
 	printSpacer();
 	return lightconeSettings;
