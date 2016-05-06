@@ -1,36 +1,32 @@
+%% Variance analysis
 clc
-clear 
+clear
 
-data=csvread('OUTPUT\MOCK(1689.2)(45)(45)(7.563).csv',1,0);
-% (1)Stellar mass, (2)x, (3)y ,(4)z, (5)vx, (6)vy, (7)vz, (8)sdssu, (9)sdssr
+cone=[];
+for i=1
+    filename= strcat('distortedLightcones/LC', sprintf('%d',i),'.csv') ;
+    current=csvread(filename);
+    cone=[cone; current];
+end
+
 solidAngle=179.94; 
 
-%% Observational effects
+%% Reduce Sample by a factor of 10
+sizeR= size(cone,1);
+N = sizeR/10 ; %Select 1/10 of the data set
+R = zeros(sizeR,1);  % set all to zero
+ix = randperm(numel(R)); % randomize the linear indices
+ix = ix(1:N); % select the first N indicies 
+R(ix) = 1; % set the corresponding positions to 1
+cut = R > 0.5; 
+cone= cone(cut,:);
 
-%Calculating Redshift, zData format: z(1), mass(2), sdssU(3), sdssR(4),
-zData = calcZ(data);
+%% Stellar mass functions
 
-%K-correct and get apparant magnitudes
-[uApp, rApp] = calcApparent(zData(:,1), zData(:,3), zData(:,4));
-
-%Applying magnitude limits
-magLim= rApp < 17;
-limData = zData(magLim,:);
-
-%Finding observed redshift + errors, cone format:% z(1), logMass(2), logMassErr(3), u(4), uErr(5), r(6), rErr(7)];
-cone = distor(limData);
-
-%Applying errors to measured values 
-
-
-mass= cone(:,2) + normrnd(0,(cone(:,3)./2),[length(cone(:,2)) 1]);
-u= cone(:,4) + normrnd(0,(cone(:,5)./2),[length(cone(:,4)) 1]);
-r= cone(:,6) + normrnd(0,(cone(:,7)./2),[length(cone(:,6)) 1]);
-
-%% Stellar Mass Functions
+mass=cone(:,2);
 figure(1)
 %preallocate lower limit redshifts to plot
-z=[0 0.1 0.2 0.4];
+z=0:0.1:0.2;
 sz=size(z);
 %allocate step in redshift
 stepsize=0.1;
@@ -83,7 +79,7 @@ for i=1:sz(2)
     zsfull(i,:) =strcat(zl(i,:),'<z<', zu(i,:));
 end
 
-legend([smoothed(:,1) smoothed(:,2) smoothed(:,3) smoothed(:,4)], {zsfull(1,:),zsfull(2,:),zsfull(3,:),zsfull(4,:)})
+legend([smoothed(:,1) smoothed(:,2) smoothed(:,3)], {zsfull(1,:),zsfull(2,:),zsfull(3,:)})
 
 axis([10 12 -7 -2])
 xlabel('$$log_{10}M_*[M_{\odot}]$$','interpreter','latex')
@@ -91,6 +87,8 @@ ylabel('$$log_{10}N(Mpc^{-3})$$','interpreter','latex')
 
 %% Colour Magnitude Diagrams
 figure(2)
+u=cone(:,4);
+r=cone(:,6);
 for i=1:sz(2)
     subplot(1, sz(2), i)
     cMap=cone(:,1)<=z(:,i)+stepsize & cone(:,1)>=z(:,i);
@@ -102,25 +100,10 @@ for i=1:sz(2)
     difference=cutu-cutr;
     x=cutr-5*log10(h);
     
+    %Colour map is relative => no need for corrections here (i think)
     dscatter(x,difference,'BINS',[1000 1000])
     axis([-25 -15 0 3])
     ylabel('$$M_u-M_r$$','interpreter','latex')
     xlabel('$$M_r-5logh$$','interpreter','latex')
 end
-
-
-%% output cones to use for cosmic variance ect
-
-csvwrite('distortedLightcones/LC1.csv',cone);
-
-
-
-
-
-
-
-
-
-
-
 
