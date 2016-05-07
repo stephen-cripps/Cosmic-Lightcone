@@ -1,6 +1,7 @@
-function [ N ] = distor( M )
+function [ N ] = distor( M, err)
 %distor
 % This function takes a lightcone catalogue M and apply observational
+% Erro 
 % distoration and return with te new catalouge N
 
 % Constants Taken from Millennium, WMAP1 Cosmology
@@ -12,7 +13,7 @@ H0 = 100e3; % ms-1 Mpc-1 h
 dh = c./H0;
 
 % The formate of M is the following
-% Stellar mass, x, y ,z, vx, vy, vz, sdssu, sdssr
+% (1)Stellar mass, x, y ,z, vx, vy, vz, (8)sdssu, (9)sdssr
 
 % The formate of N is the following
 % observed redshift, mass, empty, sdssU, empty, sdssR, empty
@@ -44,22 +45,30 @@ tic
 for i = 1:length(d)
     [~, I] = min(abs(dLookup - d(i)));
     z(i) = zLookup(I);
+    % cosmological redshift
+    
 end
 fprintf('Redshift Lookup Complete\n');
 toc
 
+% Velocity descriptions
+vr = vr + normrnd(91,50,[1 length(vr)]);
+z = (1+z) .* (1+vr./c)-1;
 
-%% Magnitude Distoration
-apparent = @(Mag, d) Mag - 5 .* (1 - log10(d*1e6));
+% %% Magnitude Distoration
+% apparent = @(Mag, d) Mag - 5 .* (1 - log10(d*1e6));
+% 
+% u = apparent(M(:, 8), d);
+% r = apparent(M(:, 9), d);
 
-u = apparent(M(:, 8), d);
-r = apparent(M(:, 9), d);
-
+%% Errors 
+tic
+[massErr, uErr, rErr] = getError(M(:,1), M(:,8), M(:,9));
+toc;
 
 %% Combine everything together 
-empty = zeros(length(M), 1);
 
-N = [z, M(:, 1), empty, u, empty, r, empty];
+N = [z, M(:, 1), massErr, M(:, 8), uErr, M(:, 9), rErr];
 
 end
 

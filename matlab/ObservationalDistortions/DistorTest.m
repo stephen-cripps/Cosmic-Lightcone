@@ -1,7 +1,12 @@
 %% Distor Test 
 tic;
-M = csvread('tao.1598.0.csv', 1, 0);
+% Tao Test Catalogue 
+M = csvread('G:\\tao.1598.0.csv', 1, 0);
 toc;
+% GAMA 
+GA = csvread('G:\\GAMA_colour.csv', 1, 0);
+toc;
+
 
 %% Correct the inputs 
 % The raw input is in the formate of 
@@ -25,14 +30,48 @@ toc
 
 %% Check Distor
 % Redshift
-zDiff = abs(M(:, 5) - N(:, 1));
-fprintf('Z Error: Max=%f mean=%f\n', max(zDiff), mean(zDiff));
+zDiff =(M(:, 5) - N(:, 1));
+fprintf('Z Error: Max=%f mean=%f\n', max(abs(zDiff)), mean(zDiff));
+figure(1)
+histogram(zDiff);
 
 % u band 
-uDiff = abs(M(:, 13) - N(:, 4));
-fprintf('u Error: Max=%f mean=%f\n', max(uDiff), mean(uDiff));
+uDiff = M(:, 12) - N(:, 4);
+fprintf('u Error: Max=%f mean=%f\n', max(abs(uDiff)), mean(uDiff));
+figure(2)
+histogram(uDiff);
 
 % r band 
-rDiff = abs(M(:, 15) - N(:, 6));
-fprintf('r Error: Max=%f mean=%f\n', max(rDiff), mean(uDiff));
+rDiff = M(:, 14) - N(:, 6);
+fprintf('r Error: Max=%f mean=%f\n', max(abs(rDiff)), mean(uDiff));
+figure(3)
+histogram(rDiff);
+
+%% Plotting Errors 
+
+figure(4)
+subplot(1,3,1);
+plot(N(:, 3), N(:, 2), '.', 'markers', 1);
+ylim([9, 13])
+xlabel('Error on Stellar Mass')
+ylabel('Stellar Mass')
+subplot(1,3,2);
+plot(N(:, 5), N(:, 4), '.', 'markers', 1);
+% ylim([-24, -14])
+% xlim([0, 0.2])
+xlabel('Error on U')
+ylabel('U Band Magnitude')
+subplot(1,3,3);
+plot(N(:, 7), N(:, 6), '.', 'markers', 1);
+xlim([0, 0.1])
+ylim([-24, -14])
+xlabel('Error on R')
+ylabel('R Band Magnitude')
+
+%% Generate a vr distribution
+
+size = 100000;
+
+n = normrnd(91,50,[1 size]);
+histogram(n);
 
