@@ -27,8 +27,8 @@ string getSnapPath(int sid);
 
 bool init();
 bool loadSettings();
-bool make(string name);
-bool makeNow(vector<Particle> particles, LightconeSettings settings);
+bool makeNow(vector<Particle> particles, LightconeSettings settings,
+		Particle obs);
 
 // Constants
 const static string VERSION_NUMBER = "0.8.2";
@@ -49,13 +49,14 @@ int main() {
 	LightconeSettings coneSettings = getLightconeSettingsFromUser();
 	Lightcone cone;
 	cone.loadRedshiftSteps();
-	cone.setObserver(getObserverPositionFromUser());
+	Particle obs = getObserverPositionFromUser();
+	cone.setObserver(obs);
 	cone.setLightcone(coneSettings);
 	cone.generate();
 	cone.write();
 	cout << "Generation Run time: " << runTimer.getSec() << " Seconds" << endl;
 	printSpacer();
-	makeNow(cone.mParticles, coneSettings);
+	makeNow(cone.mParticles, coneSettings, obs);
 	printSpacer();
 	cout << "Total Run time: " << runTimer.getSec() << " Seconds" << endl;
 	return 0;
@@ -125,107 +126,18 @@ bool loadSettings() {
 	return success;
 }
 
-bool make(string name) {
-	bool success = true;
-	vector<Particle> particles;
-	stringstream iss;
-	iss << Lightcone::OUTPUT_PATH;
-	iss << name << ".csv";
-	ifstream inputFile(iss.str().c_str());
-	if (inputFile.is_open()) {
-		string element;
-		getline(inputFile, element);
-		// Load all the particles
-		while (!inputFile.eof()) {
-			// Loading all the particles in
-			double dValues[3];
-			int iValues[2];
-			for (int i = 0; i < 3; i++) {
-				getline(inputFile, element, ',');
-				dValues[i] = atof(element.c_str());
-			}
-			getline(inputFile, element, ',');
-			iValues[0] = atoi(element.c_str());
-			getline(inputFile, element, '\n');
-			iValues[1] = atoi(element.c_str());
-			particles.push_back(
-					Particle(dValues[0], dValues[1], dValues[2], iValues[0],
-							iValues[1]));
-		}
-		// Erease the last partciles due to new line
-		particles.pop_back();
-		inputFile.close();
-		printf("[SUCCESS] Make load the lightcone file %lu particles. \n",
-				particles.size());
-	} else {
-		printf("[FAIL] Make unable to read %s\n", iss.str().c_str());
-		success = false;
-	}
-
-	if (success) {
-		stringstream oss;
-		oss << Lightcone::OUTPUT_PATH;
-		oss << "MOCK";
-		oss << name;
-		ofstream outputFile(oss.str().c_str());
-		if (outputFile.is_open()) {
-			// Continue here
-			vector<Particle>::iterator it = particles.begin();
-
-			string mt, rest;
-			int sid = 1409;
-			int id = -1;
-			string line;
-			// No error detection here!!!
-			ifstream snapFile(getSnapPath(sid).c_str());
-			getline(snapFile, line);
-			outputFile << line;
-			while (it != particles.end()) {
-				if (it->sid != sid) {
-					// Load the next snapshot
-					sid = it->sid;
-					snapFile.close();
-					snapFile.open(getSnapPath(it->sid).c_str());
-					getline(snapFile, line);
-					id = -1;
-				} else {
-					if (it->id != id) {
-						while (id != it->id - 1) {
-							getline(snapFile, line);
-							id++;
-						}
-
-						getline(snapFile, mt, ',');
-						getline(snapFile, line, ',');
-						getline(snapFile, line, ',');
-						getline(snapFile, line, ',');
-						getline(snapFile, rest, '\n');
-						id++;
-					} else {
-						outputFile << mt << ", " << it->x << ", " << it->y
-								<< ", " << it->z << "," << rest;
-						it++;
-					}
-				}
-			}
-		} else {
-			printf("[FAIL] Make unable to write to %s\n", iss.str().c_str());
-			success = false;
-		}
-	}
-	return success;
-}
-
-bool makeNow(vector<Particle> particles, LightconeSettings settings) {
+bool makeNow(vector<Particle> particles, LightconeSettings settings,
+		Particle obs) {
 	bool success = true;
 
 	stringstream oss;
 	oss << Lightcone::OUTPUT_PATH;
 	oss << "MOCK";
+	oss << "(" << obs.x << "," << obs.y << "," << obs.z << ")";
 	oss << "(" << settings.mR << ")";
 	oss << "(" << 180 * settings.mTheta / M_PI << ")";
 	oss << "(" << 180 * settings.mPhi / M_PI << ")";
-	oss << "(" << 180 * settings.OPENING_MAX / M_PI << ")";
+	oss << "(" << 180 * settings.mHO / M_PI << ")";
 	oss << ".csv";
 	ofstream outputFile(oss.str().c_str());
 	if (outputFile.is_open()) {
@@ -233,13 +145,13 @@ bool makeNow(vector<Particle> particles, LightconeSettings settings) {
 		vector<Particle>::iterator it = particles.begin();
 
 		string mt, rest;
-		int sid = 1409;
+		int sid = 2000;
 		int id = -1;
 		string line;
 		// No error detection here!!!
 		ifstream snapFile(getSnapPath(sid).c_str());
 		getline(snapFile, line);
-		outputFile << line;
+		outputFile << line << "\n";
 		while (it != particles.end()) {
 			if (it->sid != sid) {
 				// Load the next snapshot
@@ -263,7 +175,7 @@ bool makeNow(vector<Particle> particles, LightconeSettings settings) {
 					id++;
 				} else {
 					outputFile << mt << ", " << it->x << ", " << it->y << ", "
-							<< it->z << "," << rest;
+							<< it->z << "," << rest << "\n";
 					it++;
 				}
 			}
@@ -313,15 +225,12 @@ LightconeSettings getLightconeSettingsFromUser() {
 	LightconeSettings lightconeSettings;
 	double r, theta, phi, opening;
 	r = getDoubleFromUser("Lightcone radius", 0, 80000);
-	theta = M_PI
-			* getDoubleFromUser("Lightcone Polar Angle [Degrees]", 0,
-					lightconeSettings.THETA_MAX) / 180;
-	phi = M_PI
-			* getDoubleFromUser("Lightcone Azimuthal Angle [Degrees]", 0,
-					lightconeSettings.PHI_MAX) / 180;
-	opening = M_PI
-			* getDoubleFromUser("Lightcone Half Opening Angle [Degrees]", 0,
-					lightconeSettings.OPENING_MAX) / 180;
+	theta = M_PI * getDoubleFromUser("Lightcone Polar Angle [Degrees]", 0, 360)
+			/ 180;
+	phi = M_PI * getDoubleFromUser("Lightcone Azimuthal Angle [Degrees]", 0,
+			180) / 180;
+	opening = M_PI * getDoubleFromUser(
+			"Lightcone Half Opening Angle [Degrees]", 0, 180) / 180;
 	lightconeSettings.set(r, theta, phi, opening);
 	printSpacer();
 	return lightconeSettings;
